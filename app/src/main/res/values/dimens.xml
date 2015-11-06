@@ -1,0 +1,14 @@
+<resources>
+    <!-- Default screen margins, per the Android Design guidelines. -->
+    <dimen name="activity_horizontal_margin">16dp</dimen>
+    <dimen name="activity_vertical_margin">16dp</dimen>
+
+    <dimen name="needle_width">2dp</dimen>
+    <dimen name="needle_length">30dp</dimen>
+    <dimen name="arch_width">3.3dp</dimen>
+    <dimen name="center_circle_radius">3.5dp</dimen>
+    <dimen name="center_circle_stroke">2dp</dimen>
+    <dimen name="arch_radius">41dp</dimen>
+    <dimen name="shadow_shift">3dp</dimen>
+</resources>
+

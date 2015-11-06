@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="SpeedometerView">
+        <attr name="minGreen"           format="color"/>
+        <attr name="maxGreen"           format="color"/>
+        <attr name="minRed"             format="color"/>
+        <attr name="maxRed"             format="color"/>
+        <attr name="needleWidth"        format="dimension"/>
+        <attr name="needleLength"       format="dimension"/>
+        <attr name="archWidth"          format="dimension"/>
+        <attr name="angle"              format="float"/>
+        <attr name="centerCircleRadius" format="dimension"/>
+        <attr name="centerCircleStroke" format="dimension"/>
+        <attr name="centerCircleColor"  format="color"/>
+        <attr name="archRadius"         format="dimension"/>
+        <attr name="scale"              format="float"/>
+        <attr name="shadowShift"        format="dimension"/>
+        <attr name="shadowColor"        format="color"/>
+        <attr name="shadowRadius"       format="float"/>
+    </declare-styleable>
+</resources>
