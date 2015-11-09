@@ -14,7 +14,7 @@ public class MainActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         final SpeedometerView speedometerView = (SpeedometerView) findViewById(R.id.speedometer);
-        ValueAnimator animator = ValueAnimator.ofFloat(10, 0);
+        ValueAnimator animator = ValueAnimator.ofFloat(0, 10);
         animator.setDuration(5000);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -22,9 +22,7 @@ public class MainActivity extends ActionBarActivity {
                 speedometerView.setCurrentValue((float) animation.getAnimatedValue());
             }
         });
-        //animator.setRepeatCount(1);
         animator.start();
-//        speedometerView.setNeedleAngle(-12);
     }
 
 
