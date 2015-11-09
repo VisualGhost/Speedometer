@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="min_green">#d1f4eb</color>
+    <color name="max_green">#1aca9c</color>
+    <color name="min_red">#f7d7cf</color>
+    <color name="max_red">#d73611</color>
+    <color name="center_circle_color">#ffffff</color>
+    <color name="shadow">#ff1c1e26</color>
+</resources>

@@ -1,0 +1,36 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:app="http://schemas.android.com/apk/res-auto"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingLeft="@dimen/activity_horizontal_margin"
+                android:paddingRight="@dimen/activity_horizontal_margin"
+                android:paddingTop="@dimen/activity_vertical_margin"
+                android:paddingBottom="@dimen/activity_vertical_margin"
+                tools:context=".MainActivity">
+
+    <com.speedometer.SpeedometerView
+        android:id="@+id/speedometer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:minGreen="@color/min_green"
+        app:maxGreen="@color/max_green"
+        app:minRed="@color/min_red"
+        app:maxRed="@color/max_red"
+        app:centerCircleColor="@color/center_circle_color"
+        app:needleWidth="@dimen/needle_width"
+        app:needleLength="@dimen/needle_length"
+        app:archWidth="@dimen/arch_width"
+        app:archRadius="@dimen/arch_radius"
+        app:angle="18"
+        app:centerCircleRadius="@dimen/center_circle_radius"
+        app:centerCircleStroke="@dimen/center_circle_stroke"
+        android:background="#ff292b37"
+        app:scale="1"
+        app:shadowShift="@dimen/shadow_shift"
+        app:shadowColor="@color/shadow"
+        app:shadowRadius="2"
+        android:layout_centerInParent="true"
+        />
+
+</RelativeLayout>
