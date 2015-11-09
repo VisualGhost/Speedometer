@@ -1,5 +1,6 @@
 package com.speedometer;
 
+import android.animation.ValueAnimator;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
@@ -12,7 +13,17 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //setContentView(new ColorPickerView(this, null, Color.RED));
+        final SpeedometerView speedometerView = (SpeedometerView) findViewById(R.id.speedometer);
+        ValueAnimator animator = ValueAnimator.ofFloat(-18, 198);
+        animator.setDuration(5000);
+        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                speedometerView.setNeedleAngle((float) animation.getAnimatedValue());
+            }
+        });
+        animator.setRepeatCount(5);
+        animator.start();
     }
 
 

@@ -10,10 +10,9 @@ import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
 import android.util.AttributeSet;
-import android.view.MotionEvent;
 import android.view.View;
 
-public class SpeedometerView extends View implements View.OnTouchListener {
+public class SpeedometerView extends View {
 
     private int mMinGreenColor;
     private int mMaxGreenColor;
@@ -39,7 +38,7 @@ public class SpeedometerView extends View implements View.OnTouchListener {
     private float mWidth;
     private float mHeight;
     private int[] mColors;
-    private float mNeedleAngle = -37;
+    private float mNeedleAngle;
     private float mSweepAngle;
 
     public SpeedometerView(final Context context) {
@@ -93,7 +92,6 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         initCenterCircleShadowPaint();
         initCenterCirclePaint();
         initNeedlePaint();
-        setOnTouchListener(this);
     }
 
     private void initWidgetSize() {
@@ -106,7 +104,7 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         mArchPaint.setStyle(Paint.Style.STROKE);
         mArchPaint.setStrokeWidth(mArchWidth);
         mArchPaint.setAntiAlias(true);
-        Shader shader = new SweepGradient(mWidth / 2, mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
+        Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
         mArchPaint.setShader(shader);
     }
 
@@ -132,7 +130,6 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         mNeedlePaint.setStyle(Paint.Style.STROKE);
         mNeedlePaint.setAntiAlias(true);
         mNeedlePaint.setStrokeWidth(mNeedleWidth);
-        mNeedlePaint.setColor(calculateNeedleColor());
     }
 
     @Override
@@ -145,9 +142,10 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         super.onDraw(canvas);
         drawArch(canvas, mArchWidth);
         drawCenterCircle(canvas, mCenterCircleShadowPaint, mShadowShift);
-        drawNeedle(canvas, mNeedleAngle, mCenterCircleShadowPaint, mShadowShift);
-        drawNeedle(canvas, mNeedleAngle, mNeedlePaint, 0);
+        drawNeedle(canvas, -mNeedleAngle, mCenterCircleShadowPaint, mShadowShift);
+        drawNeedle(canvas, -mNeedleAngle, mNeedlePaint, 0);
         drawCenterCircle(canvas, mCenterCirclePaint, 0);
+        mNeedlePaint.setColor(getNeedleColor(mNeedleAngle));
     }
 
     private void drawArch(Canvas canvas, float archWidth) {
@@ -171,13 +169,11 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         canvas.drawLine(centerX + c * mCenterCircleRadius, centerY + s * mCenterCircleRadius + yShift, centerX + c * mNeedleLength, centerY + s * mNeedleLength + yShift, paint);
     }
 
-    private int getAverageColor(int colors[], int index, float percent) {
-        int c0 = colors[index];
-        int c1 = colors[index == (mColors.length - 1) ? index : index + 1];
-        int a = ave(Color.alpha(c0), Color.alpha(c1), percent);
-        int r = ave(Color.red(c0), Color.red(c1), percent);
-        int g = ave(Color.green(c0), Color.green(c1), percent);
-        int b = ave(Color.blue(c0), Color.blue(c1), percent);
+    private int getAverageColor(int color1, int color2, float percent) {
+        int a = ave(Color.alpha(color1), Color.alpha(color2), percent);
+        int r = ave(Color.red(color1), Color.red(color2), percent);
+        int g = ave(Color.green(color1), Color.green(color2), percent);
+        int b = ave(Color.blue(color1), Color.blue(color2), percent);
 
         return Color.argb(a, r, g, b);
     }
@@ -186,22 +182,23 @@ public class SpeedometerView extends View implements View.OnTouchListener {
         return Math.round(s + (1 - p) * (d - s));
     }
 
-    @Override
-    public boolean onTouch(final View v, final MotionEvent event) {
-        float x = event.getX();
-        float y = event.getY();
-        mNeedleAngle = (float) (-(Math.asin((getWidth() / 2 - y) / mArchRadius)) * 180 / Math.PI);
-        mNeedlePaint.setColor(getAverageColor(mColors, 2, 0.2f));
-        invalidate();
-        return false;
+    private int getNeedleColor(float angle) {
+        if (angle >= -mAngle && angle <= mSweepAngle) {
+            if (angle <= 63) {
+                return getAverageColor(mColors[2], mColors[3], (angle + mAngle) / (63 + mAngle));
+            }
+            if (angle > 63 && angle <= 117) {
+                return getAverageColor(mColors[1], mColors[2], (angle - 63) / (117 - 63));
+            }
+            if (angle > 117) {
+                return getAverageColor(mColors[0], mColors[1], (angle - 117) / (198 - 117));
+            }
+        }
+        return 0;
     }
 
-    private int calculateNeedleColor() {
-        float sectorAngle = mSweepAngle / mColors.length;
-        int i = (int) Math.ceil(Math.abs(mNeedleAngle) / sectorAngle);
-        int sectorIndex = mColors.length - i;
-        int colorIndex = sectorIndex - 1;
-        float p = 1 - Math.abs((Math.abs(i * sectorAngle - mAngle) - Math.abs(mNeedleAngle))) / sectorAngle;
-        return getAverageColor(mColors, colorIndex, p);
+    public void setNeedleAngle(float needleAngle) {
+        mNeedleAngle = needleAngle;
+        invalidate();
     }
 }
