@@ -9,6 +9,8 @@ import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Shader;
 import android.graphics.SweepGradient;
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -142,10 +144,10 @@ public class SpeedometerView extends View {
         super.onDraw(canvas);
         drawArch(canvas, mArchWidth);
         drawCenterCircle(canvas, mCenterCircleShadowPaint, mShadowShift);
+        mNeedlePaint.setColor(getNeedleColor(mNeedleAngle));
         drawNeedle(canvas, -mNeedleAngle, mCenterCircleShadowPaint, mShadowShift);
         drawNeedle(canvas, -mNeedleAngle, mNeedlePaint, 0);
         drawCenterCircle(canvas, mCenterCirclePaint, 0);
-        mNeedlePaint.setColor(getNeedleColor(mNeedleAngle));
     }
 
     private void drawArch(Canvas canvas, float archWidth) {
@@ -184,14 +186,17 @@ public class SpeedometerView extends View {
 
     private int getNeedleColor(float angle) {
         if (angle >= -mAngle && angle <= mSweepAngle) {
-            if (angle <= 63) {
-                return getAverageColor(mColors[2], mColors[3], (angle + mAngle) / (63 + mAngle));
+            float sectorAngleRange = mSweepAngle / mColors.length;
+            float angle1 = 3 * sectorAngleRange / 2 - mAngle;
+            if (angle <= angle1) {
+                return getAverageColor(mColors[2], mColors[3], (angle + mAngle) / (angle1 + mAngle));
             }
-            if (angle > 63 && angle <= 117) {
-                return getAverageColor(mColors[1], mColors[2], (angle - 63) / (117 - 63));
+            float angle2 = 90 + sectorAngleRange / 2;
+            if (angle > angle1 && angle <= angle2) {
+                return getAverageColor(mColors[1], mColors[2], (angle - angle1) / (angle2 - angle1));
             }
-            if (angle > 117) {
-                return getAverageColor(mColors[0], mColors[1], (angle - 117) / (198 - 117));
+            if (angle > angle2) {
+                return getAverageColor(mColors[0], mColors[1], (angle - angle2) / (mSweepAngle - mAngle - angle2));
             }
         }
         return 0;
@@ -199,6 +204,60 @@ public class SpeedometerView extends View {
 
     public void setNeedleAngle(float needleAngle) {
         mNeedleAngle = needleAngle;
+        invalidate();
+    }
+
+    static class SavedState extends BaseSavedState {
+        float angle;
+
+        SavedState(Parcelable superState) {
+            super(superState);
+        }
+
+        protected SavedState(Parcel in) {
+            super(in);
+            angle = (float) in.readSerializable();
+        }
+
+        @Override
+        public void writeToParcel(Parcel out, int flags) {
+            super.writeToParcel(out, flags);
+            out.writeSerializable(angle);
+        }
+
+        public static final Parcelable.Creator<SavedState> CREATOR =
+                new Parcelable.Creator<SavedState>() {
+                    public SavedState createFromParcel(Parcel in) {
+                        return new SavedState(in);
+                    }
+
+                    public SavedState[] newArray(int size) {
+                        return new SavedState[size];
+                    }
+                };
+    }
+
+    @Override
+    protected Parcelable onSaveInstanceState() {
+
+        Parcelable superState = super.onSaveInstanceState();
+
+        SavedState state = new SavedState(superState);
+        state.angle = mNeedleAngle;
+        return state;
+    }
+
+    @Override
+    protected void onRestoreInstanceState(Parcelable state) {
+        if (!(state instanceof SavedState)) {
+            super.onRestoreInstanceState(state);
+            return;
+        }
+
+        SavedState savedState = (SavedState) state;
+        super.onRestoreInstanceState(savedState.getSuperState());
+
+        mNeedleAngle = savedState.angle;
         invalidate();
     }
 }
