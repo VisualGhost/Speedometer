@@ -12,9 +12,13 @@ import android.graphics.SweepGradient;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 
 public class SpeedometerView extends View {
+
+    private static final float MIN_DEF_VALUE = 0;
+    private static final float MAX_DEF_VALUE = 10;
 
     private int mMinGreenColor;
     private int mMaxGreenColor;
@@ -31,6 +35,8 @@ public class SpeedometerView extends View {
     private float mShadowShift;
     private int mShadowColor;
     private float mShadowRadius;
+    private float mMinValue;
+    private float mMaxValue;
 
     private Paint mArchPaint;
     private Paint mCenterCircleShadowPaint;
@@ -80,6 +86,8 @@ public class SpeedometerView extends View {
                 mShadowShift = array.getDimension(R.styleable.SpeedometerView_shadowShift, 0f);
                 mShadowColor = array.getColor(R.styleable.SpeedometerView_shadowColor, Color.WHITE);
                 mShadowRadius = array.getFloat(R.styleable.SpeedometerView_shadowRadius, 0f);
+                mMinValue = array.getFloat(R.styleable.SpeedometerView_minValue, MIN_DEF_VALUE);
+                mMaxValue = array.getFloat(R.styleable.SpeedometerView_maxValue, MAX_DEF_VALUE);
             } finally {
                 if (array != null) {
                     array.recycle();
@@ -202,9 +210,43 @@ public class SpeedometerView extends View {
         return 0;
     }
 
-    public void setNeedleAngle(float needleAngle) {
+    /**
+     * Sets the angle of needle in the range of [-angle, 180 + 2*angle] (e.g angle = 18, so [-18, 216]).
+     * The "angle" - is an angle between horizontal line and the needle at its border (max and min) values.
+     *
+     * @param needleAngle The needle's angle.
+     */
+    private void setNeedleAngle(float needleAngle) {
         mNeedleAngle = needleAngle;
         invalidate();
+    }
+
+    /**
+     * Converts from angle to value from [minValue, maxValue].
+     *
+     * @param angle The angle of needle.
+     */
+    private float convertToValue(float angle) {
+        float maxAngle = mSweepAngle - mAngle;
+        float minAngle = -mAngle;
+        return ((mMaxValue - mMinValue) / (minAngle - maxAngle)) * (angle - maxAngle) + mMinValue;
+    }
+
+    /**
+     * Converts value from [mMinValue, mMaxValue] to angle of needle.
+     */
+    private float convertToAngle(float value) {
+        float maxAngle = mSweepAngle - mAngle;
+        float minAngle = -mAngle;
+        return maxAngle + (minAngle - maxAngle) / (mMaxValue - mMinValue) * (value - mMinValue);
+    }
+
+    public void setCurrentValue(float value) {
+        if (value < mMinValue || value > mMaxValue) {
+            throw new IllegalArgumentException("Wrong input value. Out of range: " + value + " does not belong to [" + mMinValue + ", " + mMaxValue + "]");
+        }
+        float angle = convertToAngle(value);
+        setNeedleAngle(angle);
     }
 
     static class SavedState extends BaseSavedState {

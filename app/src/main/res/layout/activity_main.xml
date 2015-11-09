@@ -30,6 +30,8 @@
         app:shadowShift="@dimen/shadow_shift"
         app:shadowColor="@color/shadow"
         app:shadowRadius="2"
+        app:minValue="0"
+        app:maxValue="10"
         android:layout_centerInParent="true"
         />
 
