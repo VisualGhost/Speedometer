@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 
 public class MainActivity extends ActionBarActivity {
@@ -13,7 +14,14 @@ public class MainActivity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        final TextView coloredText = (TextView) findViewById(R.id.colored_text);
         final SpeedometerView speedometerView = (SpeedometerView) findViewById(R.id.speedometer);
+        speedometerView.setColorChangeListener(new SpeedometerView.ColorChangeListener() {
+            @Override
+            public void onColorChanged(final int color) {
+                coloredText.setTextColor(color);
+            }
+        });
         ValueAnimator animator = ValueAnimator.ofFloat(0, 10);
         animator.setDuration(5000);
         animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {

@@ -12,7 +12,6 @@ import android.graphics.SweepGradient;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 public class SpeedometerView extends View {
@@ -48,6 +47,8 @@ public class SpeedometerView extends View {
     private int[] mColors;
     private float mNeedleAngle;
     private float mSweepAngle;
+
+    private ColorChangeListener mColorChangeListener;
 
     public SpeedometerView(final Context context) {
         super(context);
@@ -152,7 +153,11 @@ public class SpeedometerView extends View {
         super.onDraw(canvas);
         drawArch(canvas, mArchWidth);
         drawCenterCircle(canvas, mCenterCircleShadowPaint, mShadowShift);
-        mNeedlePaint.setColor(getNeedleColor(mNeedleAngle));
+        int color = getNeedleColor(mNeedleAngle);
+        mNeedlePaint.setColor(color);
+        if (mColorChangeListener != null) {
+            mColorChangeListener.onColorChanged(color);
+        }
         drawNeedle(canvas, -mNeedleAngle, mCenterCircleShadowPaint, mShadowShift);
         drawNeedle(canvas, -mNeedleAngle, mNeedlePaint, 0);
         drawCenterCircle(canvas, mCenterCirclePaint, 0);
@@ -301,5 +306,13 @@ public class SpeedometerView extends View {
 
         mNeedleAngle = savedState.angle;
         invalidate();
+    }
+
+    public interface ColorChangeListener {
+        void onColorChanged(int color);
+    }
+
+    public void setColorChangeListener(final ColorChangeListener colorChangeListener) {
+        mColorChangeListener = colorChangeListener;
     }
 }
