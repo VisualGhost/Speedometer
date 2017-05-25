@@ -97,7 +97,8 @@ public class SpeedometerView extends View {
 
     private void initWidgetSize() {
         mWidth = 2 * (mArchWidth + mArchRadius + mCenterCircleRadius);
-        mHeight = (float) (2 * mArchWidth + mArchRadius + mCenterCircleRadius + Math.sin(mAngle * Math.PI / 180) * (mArchRadius + mCenterCircleRadius));
+        mHeight = (float) (2 * mArchWidth + mArchRadius + mCenterCircleRadius + Math.sin(mAngle * Math.PI / 180)
+                * (mArchRadius + mCenterCircleRadius));
     }
 
     private void initArchPaint() {
@@ -167,7 +168,8 @@ public class SpeedometerView extends View {
         float centerY = getWidth() / 2;
         float c = (float) Math.cos(angle * Math.PI / 180);
         float s = (float) Math.sin(angle * Math.PI / 180);
-        canvas.drawLine(centerX + c * mCenterCircleRadius, centerY + s * mCenterCircleRadius + yShift, centerX + c * mNeedleLength, centerY + s * mNeedleLength + yShift, paint);
+        canvas.drawLine(centerX + c * mCenterCircleRadius, centerY + s * mCenterCircleRadius + yShift, centerX + c * mNeedleLength,
+                centerY + s * mNeedleLength + yShift, paint);
     }
 
     private int getAverageColor(int color1, int color2, float percent) {
