@@ -7,10 +7,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.SweepGradient;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 
 public class SpeedometerView extends View {
@@ -31,7 +28,11 @@ public class SpeedometerView extends View {
     private int mShadowColor;
     private float mShadowRadius;
 
-    private Paint mArchPaint;
+    private Paint mArchPaint1;
+    private Paint mArchPaint2;
+    private Paint mArchPaint3;
+    private Paint mArchPaint4;
+
     private Paint mCenterCircleShadowPaint;
     private Paint mCenterCirclePaint;
     private Paint mNeedlePaint;
@@ -89,7 +90,10 @@ public class SpeedometerView extends View {
         mSweepAngle = 180 + 2 * mAngle;
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         initWidgetSize();
-        initArchPaint();
+        initArchPaint1();
+        initArchPaint2();
+        initArchPaint3();
+        initArchPaint4();
         initCenterCircleShadowPaint();
         initCenterCirclePaint();
         initNeedlePaint();
@@ -101,13 +105,45 @@ public class SpeedometerView extends View {
                 * (mArchRadius + mCenterCircleRadius));
     }
 
-    private void initArchPaint() {
-        mArchPaint = new Paint();
-        mArchPaint.setStyle(Paint.Style.STROKE);
-        mArchPaint.setStrokeWidth(mArchWidth);
-        mArchPaint.setAntiAlias(true);
-        Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
-        mArchPaint.setShader(shader);
+    private void initArchPaint1() {
+        mArchPaint1 = new Paint();
+        mArchPaint1.setStyle(Paint.Style.FILL);
+        mArchPaint1.setStrokeWidth(mArchWidth);
+        mArchPaint1.setAntiAlias(true);
+        mArchPaint1.setColor(Color.argb(255, 158, 180, 216));
+        //Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
+        // mArchPaint.setShader(shader);
+    }
+
+    private void initArchPaint2() {
+        mArchPaint2 = new Paint();
+        mArchPaint2.setStyle(Paint.Style.FILL);
+        mArchPaint2.setStrokeWidth(mArchWidth);
+        mArchPaint2.setAntiAlias(true);
+        mArchPaint2.setColor(Color.argb(255, 158, 198, 216));
+        //Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
+        // mArchPaint.setShader(shader);
+    }
+
+    private void initArchPaint3() {
+        mArchPaint3 = new Paint();
+        mArchPaint3.setStyle(Paint.Style.FILL);
+        mArchPaint3.setStrokeWidth(mArchWidth);
+        mArchPaint3.setAntiAlias(true);
+        mArchPaint3.setColor(Color.argb(255, 182, 216, 158));
+        //Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
+        // mArchPaint.setShader(shader);
+    }
+
+    private void initArchPaint4() {
+        mArchPaint4 = new Paint();
+        mArchPaint4.setStyle(Paint.Style.FILL);
+        mArchPaint4.setStrokeWidth(mArchWidth);
+        mArchPaint4.setAntiAlias(true);
+        mArchPaint4.setColor(Color.WHITE);
+        mArchPaint4.setAlpha(100);
+        //Shader shader = new SweepGradient(mWidth / 2, 1.1f * mHeight, mColors, new float[]{0.6f, 0.7f, 0.8f, 0.9f});
+        // mArchPaint.setShader(shader);
     }
 
     private void initCenterCircleShadowPaint() {
@@ -121,10 +157,10 @@ public class SpeedometerView extends View {
 
     private void initCenterCirclePaint() {
         mCenterCirclePaint = new Paint();
-        mCenterCirclePaint.setStyle(Paint.Style.STROKE);
+        mCenterCirclePaint.setStyle(Paint.Style.FILL);
         mCenterCirclePaint.setAntiAlias(true);
         mCenterCirclePaint.setStrokeWidth(mCenterCircleStroke);
-        mCenterCirclePaint.setColor(mCenterCircleColor);
+        mCenterCirclePaint.setColor(Color.argb(255, 244, 140, 66));
     }
 
     private void initNeedlePaint() {
@@ -134,75 +170,94 @@ public class SpeedometerView extends View {
         mNeedlePaint.setStrokeWidth(mNeedleWidth);
     }
 
+    RectF rectF;
+    float d = 100;
+    RectF rectF2;
+
+
     @Override
     protected void onMeasure(final int widthMeasureSpec, final int heightMeasureSpec) {
         setMeasuredDimension((int) mWidth, (int) mHeight);
+        rectF = new RectF(mArchWidth, mArchWidth, mWidth - mArchWidth, mWidth - mArchWidth);
+        rectF2 = new RectF(mArchWidth + d, mArchWidth + d, mWidth - mArchWidth - d, mWidth - mArchWidth - d);
+
     }
 
     @Override
     protected void onDraw(final Canvas canvas) {
         super.onDraw(canvas);
-        drawArch(canvas, mArchWidth);
-        drawCenterCircle(canvas, mCenterCircleShadowPaint, mShadowShift);
-        drawNeedle(canvas, -mNeedleAngle, mCenterCircleShadowPaint, mShadowShift);
-        drawNeedle(canvas, -mNeedleAngle, mNeedlePaint, 0);
-        drawCenterCircle(canvas, mCenterCirclePaint, 0);
-        mNeedlePaint.setColor(getNeedleColor(mNeedleAngle));
+        drawArch1(canvas, mArchWidth);
+
+        if (mIs3) drawArch3(canvas, mArchWidth);
+        if (mIs2) drawArch2(canvas, mArchWidth);
+        drawArch4(canvas, mArchWidth);
+        drawCenterCircle(canvas, mCenterCirclePaint);
     }
 
-    private void drawArch(Canvas canvas, float archWidth) {
-        RectF rectF = new RectF(archWidth, archWidth, getWidth() - archWidth, getWidth() - archWidth);
+    private void drawArch1(Canvas canvas, float archWidth) {
         float startAngle = 180 - mAngle;
-        canvas.drawArc(rectF, startAngle, mSweepAngle, false, mArchPaint);
+        canvas.drawArc(rectF, startAngle, Math.min(mAnimated, mMax1), true, mArchPaint1);
     }
 
-    private void drawCenterCircle(Canvas canvas, Paint paint, float yShift) {
+    private void drawArch2(Canvas canvas, float archWidth) {
+        float startAngle = 180 - mAngle;
+        canvas.drawArc(rectF, startAngle + Math.min(mAnimated, mMax1), mAnimated - mMax1, true, mArchPaint2);
+    }
+
+    private float foo;
+
+    private void drawArch3(Canvas canvas, float archWidth) {
+        float startAngle = 180 - mAngle;
+        canvas.drawArc(rectF, startAngle + mMax2, foo, true, mArchPaint3);
+    }
+
+    private void drawArch4(Canvas canvas, float archWidth) {
+        float startAngle = 180 - mAngle;
+        canvas.drawArc(rectF2, startAngle, startAngle + 180 - mAngle, true, mArchPaint4);
+    }
+
+    private float radius;
+
+    private void drawCenterCircle(Canvas canvas, Paint paint) {
         float left = getWidth() / 2 - mCenterCircleRadius;
         float right = getWidth() / 2 + mCenterCircleRadius;
-        RectF rectF = new RectF(left, left + yShift, right, right + yShift);
-        canvas.drawArc(rectF, 0, 360, false, paint);
+        RectF rectF = new RectF(left - radius, left - radius, right + radius, right + radius);
+        canvas.drawArc(rectF, 0, 360, true, paint);
     }
 
-    private void drawNeedle(Canvas canvas, float angle, Paint paint, float yShift) {
-        float centerX = getWidth() / 2;
-        float centerY = getWidth() / 2;
-        float c = (float) Math.cos(angle * Math.PI / 180);
-        float s = (float) Math.sin(angle * Math.PI / 180);
-        canvas.drawLine(centerX + c * mCenterCircleRadius, centerY + s * mCenterCircleRadius + yShift, centerX + c * mNeedleLength,
-                centerY + s * mNeedleLength + yShift, paint);
+    private float mAnimated;
+    private boolean mIs2;
+
+    public void animateMe(float v) {
+        mAnimated = v;
+        mIs2 = Float.compare(v, mMax1) > 0;
+        foo = mMax3 - mMax2;
+        invalidate();
     }
 
-    private int getAverageColor(int color1, int color2, float percent) {
-        int a = ave(Color.alpha(color1), Color.alpha(color2), percent);
-        int r = ave(Color.red(color1), Color.red(color2), percent);
-        int g = ave(Color.green(color1), Color.green(color2), percent);
-        int b = ave(Color.blue(color1), Color.blue(color2), percent);
+    private float mMax1;
+    private float mMax2;
+    private float mMax3;
+    private boolean mIs3;
 
-        return Color.argb(a, r, g, b);
+    public void setMax3(float max1, float max2, float max3) {
+        mMax1 = max1;
+        mMax2 = max2;
+        mMax3 = max3;
     }
 
-    private int ave(int s, int d, float p) {
-        return Math.round(s + (1 - p) * (d - s));
+    public void reset() {
+        mIs2 = false;
+        mIs3 = false;
     }
 
-    private int getNeedleColor(float angle) {
-        if (angle >= -mAngle && angle <= mSweepAngle) {
-            if (angle <= 63) {
-                return getAverageColor(mColors[2], mColors[3], (angle + mAngle) / (63 + mAngle));
-            }
-            if (angle > 63 && angle <= 117) {
-                return getAverageColor(mColors[1], mColors[2], (angle - 63) / (117 - 63));
-            }
-            if (angle > 117) {
-                return getAverageColor(mColors[0], mColors[1], (angle - 117) / (198 - 117));
-            }
-        }
-        return 0;
+    public void show3() {
+        mIs3 = true;
     }
 
-    public void setNeedleAngle(float needleAngle) {
-        Log.e("Test", "--> " + needleAngle);
-        mNeedleAngle = needleAngle;
+    public void sector3(float v, int progress) {
+        foo = v;
+        radius = 300 * (1 - (progress / 100f));
         invalidate();
     }
 }

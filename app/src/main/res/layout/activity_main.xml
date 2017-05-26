@@ -22,15 +22,29 @@
         app:needleLength="@dimen/needle_length"
         app:archWidth="@dimen/arch_width"
         app:archRadius="@dimen/arch_radius"
-        app:angle="18"
+        app:angle="45"
         app:centerCircleRadius="@dimen/center_circle_radius"
         app:centerCircleStroke="@dimen/center_circle_stroke"
-        android:background="#ff292b37"
-        app:scale="1"
+        android:background="#ffffff"
+        app:scale="3"
         app:shadowShift="@dimen/shadow_shift"
         app:shadowColor="@color/shadow"
         app:shadowRadius="2"
         android:layout_centerInParent="true"
+        />
+
+    <SeekBar
+        android:id="@+id/seek_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/speedometer"
+        android:layout_marginTop="100dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginRight="30dp"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:max="100"
+        android:progress="50"
         />
 
 </RelativeLayout>
