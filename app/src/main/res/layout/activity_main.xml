@@ -25,7 +25,7 @@
         app:angle="45"
         app:centerCircleRadius="@dimen/center_circle_radius"
         app:centerCircleStroke="@dimen/center_circle_stroke"
-        android:background="#ffffff"
+        android:background="#d8d8d8"
         app:scale="3"
         app:shadowShift="@dimen/shadow_shift"
         app:shadowColor="@color/shadow"

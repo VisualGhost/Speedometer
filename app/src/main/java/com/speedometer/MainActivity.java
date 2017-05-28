@@ -16,6 +16,7 @@ public class MainActivity extends ActionBarActivity {
 
     ValueAnimator mAnimator1;
     ValueAnimator mAnimator2;
+    ValueAnimator mAnimator3;
     SpeedometerView speedometerView;
     SeekBar mSeekBar;
 
@@ -42,6 +43,10 @@ public class MainActivity extends ActionBarActivity {
         mAnimator2.setDuration(calculateTime(MAX_2, 270));
         mAnimator2.setInterpolator(new LinearInterpolator());
 
+        mAnimator3 = ValueAnimator.ofFloat(100, 100 / (270 - MAX_2) * (MAX_3 - MAX_2));
+        mAnimator3.setDuration(calculateTime(MAX_2, 270));
+        mAnimator3.setInterpolator(new LinearInterpolator());
+
         mAnimator1.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
             public void onAnimationUpdate(ValueAnimator animation) {
@@ -58,12 +63,20 @@ public class MainActivity extends ActionBarActivity {
             }
         });
 
+        mAnimator3.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator animation) {
+                speedometerView.setCircleProgress((float) animation.getAnimatedValue());
+            }
+        });
+
         mAnimator1.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 speedometerView.show3();
                 mAnimator2.start();
+                mAnimator3.start();
             }
         });
 
@@ -90,7 +103,7 @@ public class MainActivity extends ActionBarActivity {
         setSeekBar();
     }
 
-    private void setSeekBar(){
+    private void setSeekBar() {
         float p = 100f * (MAX_3 - MAX_2) / (270f - MAX_2);
         mSeekBar.setProgress((int) p);
     }

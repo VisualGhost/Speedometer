@@ -160,7 +160,7 @@ public class SpeedometerView extends View {
         mCenterCirclePaint.setStyle(Paint.Style.FILL);
         mCenterCirclePaint.setAntiAlias(true);
         mCenterCirclePaint.setStrokeWidth(mCenterCircleStroke);
-        mCenterCirclePaint.setColor(Color.argb(255, 244, 140, 66));
+        mCenterCirclePaint.setColor(Color.WHITE);
     }
 
     private void initNeedlePaint() {
@@ -249,6 +249,8 @@ public class SpeedometerView extends View {
     public void reset() {
         mIs2 = false;
         mIs3 = false;
+        mCenterCirclePaint.setColor(Color.WHITE);
+        radius = 0;
     }
 
     public void show3() {
@@ -256,8 +258,29 @@ public class SpeedometerView extends View {
     }
 
     public void sector3(float v, int progress) {
+        if (!mIs3) {
+            return;
+        }
         foo = v;
         radius = 300 * (1 - (progress / 100f));
+        if (progress == 100) {
+            mCenterCirclePaint.setColor(Color.WHITE);
+        } else {
+            mCenterCirclePaint.setColor(Color.argb(255, 244, 140, 66));
+        }
+        invalidate();
+    }
+
+    public void setCircleProgress(float progress) {
+        if (!mIs3) {
+            return;
+        }
+        radius = 300 * (1 - (progress / 100f));
+        if (progress == 100) {
+            mCenterCirclePaint.setColor(Color.WHITE);
+        } else {
+            mCenterCirclePaint.setColor(Color.argb(255, 244, 140, 66));
+        }
         invalidate();
     }
 }
