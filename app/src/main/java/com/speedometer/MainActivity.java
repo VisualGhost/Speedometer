@@ -8,6 +8,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.SeekBar;
 
@@ -22,7 +24,7 @@ public class MainActivity extends ActionBarActivity {
 
     private final static float MAX_1 = 110;
     private final static float MAX_2 = 190;
-    private final static float MAX_3 = 240;
+    private final static float MAX_3 = 190;
 
 
     @Override
@@ -33,19 +35,20 @@ public class MainActivity extends ActionBarActivity {
         setTitle("Money Saving Adjust");
 
         speedometerView = (SpeedometerView) findViewById(R.id.speedometer);
+        //speedometerView.setLayerType(View.LAYER_TYPE_HARDWARE, null);
         speedometerView.setMax3(MAX_1, MAX_2, MAX_3);
 
         mAnimator1 = ValueAnimator.ofFloat(0, 270);// 60 grad = 1 sec
-        mAnimator1.setDuration(calculateTime(0, 270));
+        mAnimator1.setDuration(calculateTimeFast(0, 270));
         mAnimator1.setInterpolator(new LinearInterpolator());
 
         mAnimator2 = ValueAnimator.ofFloat(270, MAX_2);// 60 grad = 1 sec
-        mAnimator2.setDuration(calculateTime(MAX_2, 270));
-        mAnimator2.setInterpolator(new LinearInterpolator());
+        mAnimator2.setDuration(calculateTimeSlow(MAX_2, 270));
+        mAnimator2.setInterpolator(new DecelerateInterpolator());
 
         mAnimator3 = ValueAnimator.ofFloat(100, 100 / (270 - MAX_2) * (MAX_3 - MAX_2));
-        mAnimator3.setDuration(calculateTime(MAX_2, 270));
-        mAnimator3.setInterpolator(new LinearInterpolator());
+        mAnimator3.setDuration(calculateTimeSlow(MAX_2, 270));
+        mAnimator3.setInterpolator(new DecelerateInterpolator());
 
         mAnimator1.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
             @Override
@@ -74,9 +77,14 @@ public class MainActivity extends ActionBarActivity {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                speedometerView.show3();
-                mAnimator2.start();
-                mAnimator3.start();
+                speedometerView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        speedometerView.show3();
+                        mAnimator2.start();
+                        mAnimator3.start();
+                    }
+                }, 300);
             }
         });
 
@@ -108,8 +116,12 @@ public class MainActivity extends ActionBarActivity {
         mSeekBar.setProgress((int) p);
     }
 
-    private long calculateTime(float start, float end) {
+    private long calculateTimeFast(float start, float end) {
         return (long) Math.abs(start - end) * 1000 / 270;
+    }
+
+    private long calculateTimeSlow(float start, float end) {
+        return (long) Math.abs(start - end) * 1000 / 50;
     }
 
     @Override

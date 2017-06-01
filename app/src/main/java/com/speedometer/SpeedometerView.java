@@ -60,6 +60,8 @@ public class SpeedometerView extends View {
 
     private void init(Context context, AttributeSet attrs) {
 
+
+
         if (attrs != null) {
             TypedArray array = null;
             try {
