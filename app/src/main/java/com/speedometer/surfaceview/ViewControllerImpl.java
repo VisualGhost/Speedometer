@@ -1,6 +1,5 @@
 package com.speedometer.surfaceview;
 
-
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -29,7 +28,6 @@ public class ViewControllerImpl implements ViewController {
         mMax2 = max2;
         mMax3 = max3;
         mMax = max;
-        mProgress = max3 - max2;
     }
 
     private void initArchPaint1() {

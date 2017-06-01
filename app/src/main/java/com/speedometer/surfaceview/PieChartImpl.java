@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -19,15 +18,17 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
     private ViewController mViewController;
     private SurfaceHolder mHolder;
 
-    public PieChartImpl(Context context, ViewController viewController, ObservableHolder observableHolder) {
+    public PieChartImpl(Context context) {
         super(context, null);
-        mViewController = viewController;
-        getHolder().addCallback(this);
-        mConnectableObservable = observableHolder.getObservable().replay();
+        init();
     }
 
     public PieChartImpl(Context context, AttributeSet attrs) {
         super(context, attrs);
+        init();
+    }
+
+    private void init() {
         getHolder().addCallback(this);
     }
 
@@ -39,6 +40,19 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
     @Override
     public void surfaceCreated(final SurfaceHolder holder) {
         mHolder = holder;
+        Canvas canvas = null;
+        try {
+            canvas = holder.lockCanvas(null);
+            synchronized (holder) {
+                if (canvas != null) {
+                    canvas.drawColor(Color.WHITE);
+                }
+            }
+        } finally {
+            if (canvas != null) {
+                holder.unlockCanvasAndPost(canvas);
+            }
+        }
     }
 
     @Override
@@ -49,14 +63,28 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
     @Override
     public void surfaceDestroyed(SurfaceHolder holder) {
         holder.removeCallback(this);
-        mResourceObserver.dispose();
+        if (mResourceObserver != null) {
+            mResourceObserver.dispose();
+        }
     }
 
     @Override
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         int smallest = Math.min(w, h);
-        mViewController.onSize(smallest, smallest);
+        if (mViewController != null) {
+            mViewController.onSize(smallest, smallest);
+        }
+    }
+
+    @Override
+    public void setViewController(ViewController viewController) {
+        mViewController = viewController;
+    }
+
+    @Override
+    public void setObservableHolder(ObservableHolder observableHolder) {
+        mConnectableObservable = observableHolder.getObservable().replay();
     }
 
     @Override
@@ -74,8 +102,10 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
                     canvas = mHolder.lockCanvas(null);
                     synchronized (mHolder) {
                         if (canvas != null) {
-                            canvas.drawColor(Color.BLACK);
-                            mViewController.draw(canvas, aFloat);
+                            canvas.drawColor(Color.WHITE);
+                            if (mViewController != null) {
+                                mViewController.draw(canvas, aFloat);
+                            }
                         }
                     }
                 } finally {
@@ -97,8 +127,10 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
             }
         };
 
-        mConnectableObservable.connect();
-        mConnectableObservable.subscribe(mResourceObserver);
+        if (mConnectableObservable != null) {
+            mConnectableObservable.connect();
+            mConnectableObservable.subscribe(mResourceObserver);
+        }
     }
 
     private void reset() {

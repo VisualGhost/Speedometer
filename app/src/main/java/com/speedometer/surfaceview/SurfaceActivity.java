@@ -7,10 +7,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.SeekBar;
 
 import com.speedometer.R;
 
-public class SurfaceActivity extends AppCompatActivity {
+public class SurfaceActivity extends AppCompatActivity implements SeekBar.OnSeekBarChangeListener {
 
     private static final float SEGMENT_MAX = 270;
     private static final float SEGMENT_1 = 110;
@@ -18,15 +19,19 @@ public class SurfaceActivity extends AppCompatActivity {
     private static final float SEGMENT_3 = 240;
 
     private PieChart mPieChart;
+    private SeekBar mSeekBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_surface);
         ObservableHolder.Range clockWiseRange = new ObservableHolder.Range(0, SEGMENT_MAX, 2000);
         ObservableHolder.Range counterClockWiseRange = new ObservableHolder.Range(SEGMENT_MAX, SEGMENT_2, 1500);
-        mPieChart = new PieChartImpl(this, new ViewControllerImpl(SEGMENT_1, SEGMENT_2, SEGMENT_3, SEGMENT_MAX),
-                new ObservableHolder(clockWiseRange, counterClockWiseRange));
-        setContentView((View) mPieChart);
+        mPieChart = (PieChart)findViewById(R.id.piechart);
+        mPieChart.setViewController(new ViewControllerImpl(SEGMENT_1, SEGMENT_2, SEGMENT_3, SEGMENT_MAX));
+        mPieChart.setObservableHolder(new ObservableHolder(clockWiseRange, counterClockWiseRange));
+        mSeekBar = (SeekBar)findViewById(R.id.seek_bar);
+        mSeekBar.setOnSeekBarChangeListener(this);
     }
 
     @Override
@@ -45,5 +50,20 @@ public class SurfaceActivity extends AppCompatActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+
+    }
+
+    @Override
+    public void onStartTrackingTouch(SeekBar seekBar) {
+
+    }
+
+    @Override
+    public void onStopTrackingTouch(SeekBar seekBar) {
+
     }
 }
