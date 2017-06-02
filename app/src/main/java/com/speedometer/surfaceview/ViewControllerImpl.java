@@ -1,5 +1,6 @@
 package com.speedometer.surfaceview;
 
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -7,91 +8,166 @@ import android.graphics.RectF;
 
 public class ViewControllerImpl implements ViewController {
 
-    private float mAngle = 45;
-    private Paint mArchPaint1;
-    private Paint mArchPaint2;
-    private Paint mArchPaint3;
-    private Paint mArchPaint4;
-    private RectF rectF;
-    private float mMax;
-    private float mMax1;
-    private float mMax2;
-    private float mMax3;
-    private float mProgress;
+    private static final float START_ANGLE = 135;
+    private static final float MIN_CIRCLE_FACTOR = 0.1f;
+    private static final float MAX_CIRCLE_FACTOR = 0.3f;
 
-    public ViewControllerImpl(float max1, float max2, float max3, float max) {
+    private Bitmap mBitmap;
+
+    private Paint mArchPaintSegment1;
+    private Paint mArchPaintSegment2;
+    private Paint mArchPaintSegment3;
+    private Paint mArchPaintSegment4;
+    private Paint mCenterCirclePaint;
+
+    private RectF rectF;
+
+    private float mMaxSegmentAngle;
+    private float mMaxSegment1Angle;
+    private float mMaxSegment2Angle;
+    private float mSweepAngle;
+    private float mCurrentSweepAngle;
+    private float radius;
+
+    private int mWidth;
+    private boolean isMaxReached;
+
+    public ViewControllerImpl(Bitmap bitmap,
+                              float maxSegment1Angle,
+                              float maxSegment2Angle,
+                              float maxSegmentAngle) {
+        mBitmap = bitmap;
         initArchPaint1();
         initArchPaint2();
         initArchPaint3();
         initArchPaint4();
-        mMax1 = max1;
-        mMax2 = max2;
-        mMax3 = max3;
-        mMax = max;
+        initCenterCirclePaint();
+        mMaxSegment1Angle = maxSegment1Angle;
+        mMaxSegment2Angle = maxSegment2Angle;
+        mMaxSegmentAngle = maxSegmentAngle;
     }
 
     private void initArchPaint1() {
-        mArchPaint1 = new Paint();
-        mArchPaint1.setStyle(Paint.Style.FILL);
-        mArchPaint1.setAntiAlias(true);
-        mArchPaint1.setColor(Color.argb(255, 158, 180, 216));
+        mArchPaintSegment1 = new Paint();
+        mArchPaintSegment1.setStyle(Paint.Style.FILL);
+        mArchPaintSegment1.setAntiAlias(true);
+        //TODO use attr
+        mArchPaintSegment1.setColor(Color.argb(255, 158, 180, 216));
     }
 
     private void initArchPaint2() {
-        mArchPaint2 = new Paint();
-        mArchPaint2.setStyle(Paint.Style.FILL);
-        mArchPaint2.setAntiAlias(true);
-        mArchPaint2.setColor(Color.argb(255, 158, 198, 216));
+        mArchPaintSegment2 = new Paint();
+        mArchPaintSegment2.setStyle(Paint.Style.FILL);
+        mArchPaintSegment2.setAntiAlias(true);
+        //TODO use attr
+        mArchPaintSegment2.setColor(Color.argb(255, 158, 198, 216));
     }
 
     private void initArchPaint3() {
-        mArchPaint3 = new Paint();
-        mArchPaint3.setStyle(Paint.Style.FILL);
-        mArchPaint3.setAntiAlias(true);
-        mArchPaint3.setColor(Color.argb(255, 182, 216, 158));
+        mArchPaintSegment3 = new Paint();
+        mArchPaintSegment3.setStyle(Paint.Style.FILL);
+        mArchPaintSegment3.setAntiAlias(true);
+        //TODO use attr
+        mArchPaintSegment3.setColor(Color.argb(255, 182, 216, 158));
     }
 
     private void initArchPaint4() {
-        mArchPaint4 = new Paint();
-        mArchPaint4.setStyle(Paint.Style.FILL);
-        mArchPaint4.setAntiAlias(true);
-        mArchPaint4.setColor(Color.WHITE);
-        mArchPaint4.setAlpha(100);
+        mArchPaintSegment4 = new Paint();
+        mArchPaintSegment4.setStyle(Paint.Style.FILL);
+        mArchPaintSegment4.setAntiAlias(true);
+        //TODO use attr
+        mArchPaintSegment4.setColor(Color.WHITE);
+        mArchPaintSegment4.setAlpha(100);
+    }
+
+    private void initCenterCirclePaint() {
+        mCenterCirclePaint = new Paint();
+        mCenterCirclePaint.setStyle(Paint.Style.FILL);
+        mCenterCirclePaint.setAntiAlias(true);
+        mCenterCirclePaint.setColor(Color.WHITE);
     }
 
     @Override
     public void onSize(int w, int h) {
         rectF = new RectF(0, 0, w, h);
+        mWidth = w;
+        radius = MIN_CIRCLE_FACTOR * mWidth;
     }
 
     @Override
-    public void draw(Canvas canvas, float f) {
-        drawArch1(canvas, f);
-        if (mProgress > 0) {
-            drawArch3(canvas);
+    public void draw(Canvas canvas, float sweepAngle) {
+        mCurrentSweepAngle = sweepAngle;
+        drawSegments(canvas, sweepAngle);
+        float progress = getProgress(sweepAngle);
+        drawCenterCircle(canvas, sweepAngle, progress);
+    }
+
+    private void drawSegments(Canvas canvas, float sweepAngle) {
+        canvas.drawBitmap(mBitmap, null, rectF, null);
+        drawSegment4(canvas);
+        drawSegment1(canvas, sweepAngle);
+        if (mSweepAngle > 0) {
+            drawSegment3(canvas);
         }
-        if (Float.compare(f, mMax1) > 0) {
-            drawArch2(canvas, f);
+        if (Float.compare(sweepAngle, mMaxSegment1Angle) > 0) {
+            drawSegment2(canvas, sweepAngle);
         }
     }
 
-    private void drawArch1(Canvas canvas, float f) {
-        float startAngle = 180 - mAngle;
-        canvas.drawArc(rectF, startAngle, Math.min(f, mMax1), true, mArchPaint1);
+    private float getProgress(float sweepAngle) {
+        return 100 / (mMaxSegmentAngle - mMaxSegment2Angle) * (sweepAngle - mMaxSegment2Angle);
     }
 
-    private void drawArch2(Canvas canvas, float f) {
-        float startAngle = 180 - mAngle;
-        canvas.drawArc(rectF, startAngle + Math.min(f, mMax1), f - mMax1, true, mArchPaint2);
+    @Override
+    public void slide(Canvas canvas, float sweepAngle, int progress) {
+        mSweepAngle = sweepAngle;
+        drawSegments(canvas, mCurrentSweepAngle);
+        drawCenterCircle(canvas, sweepAngle, progress);
     }
 
-    private void drawArch3(Canvas canvas) {
-        float startAngle = 180 - mAngle;
-        canvas.drawArc(rectF, startAngle + mMax2, mProgress, true, mArchPaint3);
+    private void drawSegment1(Canvas canvas, float sweepAngle) {
+        canvas.drawArc(rectF, START_ANGLE, Math.min(sweepAngle, mMaxSegment1Angle), true, mArchPaintSegment1);
+    }
+
+    private void drawSegment2(Canvas canvas, float sweepAngle) {
+        canvas.drawArc(rectF, START_ANGLE + Math.min(sweepAngle, mMaxSegment1Angle), sweepAngle - mMaxSegment1Angle, true, mArchPaintSegment2);
+    }
+
+    private void drawSegment3(Canvas canvas) {
+        canvas.drawArc(rectF, START_ANGLE + mMaxSegment2Angle, mSweepAngle, true, mArchPaintSegment3);
+    }
+
+    private void drawSegment4(Canvas canvas) {
+        canvas.drawArc(rectF, START_ANGLE, 2 * START_ANGLE, true, mArchPaintSegment4);
+    }
+
+    private void modifyCircleRadius(float progress) {
+        radius = mWidth * (MIN_CIRCLE_FACTOR + MAX_CIRCLE_FACTOR * (1 - (progress / 100f)));
+    }
+
+    private void modifyCircleColor(float progress) {
+        if (progress == 100) {
+            mCenterCirclePaint.setColor(Color.WHITE);// TODO use attr
+        } else {
+            mCenterCirclePaint.setColor(Color.argb(255, 244, 140, 66));// TODO use attr
+        }
+    }
+
+    private void drawCenterCircle(Canvas canvas, float sweepAngle, float progress) {
+        if (!isMaxReached && Float.compare(sweepAngle, mMaxSegmentAngle) == 0) {
+            isMaxReached = true;
+        }
+        if (isMaxReached) {
+            modifyCircleColor(progress);
+            modifyCircleRadius(progress);
+        }
+        canvas.drawCircle(mWidth / 2, mWidth / 2, radius, mCenterCirclePaint);
     }
 
     @Override
     public void reset() {
-        // empty
+        isMaxReached = false;
+        radius = MIN_CIRCLE_FACTOR * mWidth;
+        mCenterCirclePaint.setColor(Color.WHITE);// TODO use attr
     }
 }

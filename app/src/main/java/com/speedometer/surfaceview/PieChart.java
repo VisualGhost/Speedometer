@@ -9,4 +9,6 @@ public interface PieChart {
 
     void startAnimation();
 
+    void slide(float sweepAngle, int progress);
+
 }

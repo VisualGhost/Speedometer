@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">Speedometer</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="app_name">Pie Chart</string>
     <string name="action_settings">animate</string>
 
 </resources>

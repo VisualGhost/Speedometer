@@ -1,12 +1,16 @@
 package com.speedometer.surfaceview;
 
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.SeekBar;
 
 import com.speedometer.R;
@@ -16,22 +20,26 @@ public class SurfaceActivity extends AppCompatActivity implements SeekBar.OnSeek
     private static final float SEGMENT_MAX = 270;
     private static final float SEGMENT_1 = 110;
     private static final float SEGMENT_2 = 190;
-    private static final float SEGMENT_3 = 240;
 
     private PieChart mPieChart;
     private SeekBar mSeekBar;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        Bitmap background = BitmapFactory.decodeResource(getResources(),
+                R.drawable.mosaic);
+        mPieChart = new PieChartImpl(this, background);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_surface);
         ObservableHolder.Range clockWiseRange = new ObservableHolder.Range(0, SEGMENT_MAX, 2000);
         ObservableHolder.Range counterClockWiseRange = new ObservableHolder.Range(SEGMENT_MAX, SEGMENT_2, 1500);
-        mPieChart = (PieChart)findViewById(R.id.piechart);
-        mPieChart.setViewController(new ViewControllerImpl(SEGMENT_1, SEGMENT_2, SEGMENT_3, SEGMENT_MAX));
+        FrameLayout frameLayout = (FrameLayout) findViewById(R.id.chart_container);
+        frameLayout.addView((View) mPieChart);
+        mPieChart.setViewController(new ViewControllerImpl(background, SEGMENT_1, SEGMENT_2, SEGMENT_MAX));
         mPieChart.setObservableHolder(new ObservableHolder(clockWiseRange, counterClockWiseRange));
-        mSeekBar = (SeekBar)findViewById(R.id.seek_bar);
+        mSeekBar = (SeekBar) findViewById(R.id.seek_bar);
         mSeekBar.setOnSeekBarChangeListener(this);
+        animate();
     }
 
     @Override
@@ -45,25 +53,31 @@ public class SurfaceActivity extends AppCompatActivity implements SeekBar.OnSeek
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
-            mPieChart.startAnimation();
+            animate();
             return true;
         }
 
         return super.onOptionsItemSelected(item);
     }
 
+    private void animate() {
+        mSeekBar.setProgress(0);
+        mPieChart.startAnimation();
+    }
+
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-
+        float sweepAngle = (progress / 100f) * (SEGMENT_MAX - SEGMENT_2);
+        mPieChart.slide(sweepAngle, progress);
     }
 
     @Override
     public void onStartTrackingTouch(SeekBar seekBar) {
-
+        // empty
     }
 
     @Override
     public void onStopTrackingTouch(SeekBar seekBar) {
-
+        // empty
     }
 }

@@ -44,7 +44,7 @@ public class ObservableHolder {
                 clockwiseRange.startArch, clockwiseRange.endArch);
         Observable<Float> counterclockwiseObservable = createObservable(
                 counterclockwiseRange.duration, counterclockwiseRange.startArch,
-                counterclockwiseRange.endArch);
+                counterclockwiseRange.endArch).delay(DELAY, TimeUnit.MILLISECONDS);
 
         List<Observable<Float>> observables = new ArrayList<>();
         observables.add(clockwiseObservable);
@@ -69,7 +69,7 @@ public class ObservableHolder {
             public void subscribe(final ObservableEmitter<Float> e) throws Exception {
                 animate(e, duration, startArch, endArch);
             }
-        }).delay(DELAY, TimeUnit.MILLISECONDS).subscribeOn(AndroidSchedulers.mainThread())
+        }).subscribeOn(AndroidSchedulers.mainThread())
                 .observeOn(SCHEDULER);
     }
 

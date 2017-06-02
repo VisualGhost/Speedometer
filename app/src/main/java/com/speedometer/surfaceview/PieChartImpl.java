@@ -2,9 +2,10 @@ package com.speedometer.surfaceview;
 
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.util.AttributeSet;
+import android.graphics.RectF;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -16,20 +17,13 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
     private ConnectableObservable<Float> mConnectableObservable;
     private ResourceObserver<Float> mResourceObserver;
     private ViewController mViewController;
-    private SurfaceHolder mHolder;
+    private Bitmap mBitmap;
+    private RectF mRectF;
 
-    public PieChartImpl(Context context) {
+    public PieChartImpl(Context context, Bitmap bitmap) {
         super(context, null);
-        init();
-    }
-
-    public PieChartImpl(Context context, AttributeSet attrs) {
-        super(context, attrs);
-        init();
-    }
-
-    private void init() {
-        getHolder().addCallback(this);
+        mBitmap = bitmap;
+        getHolder().addCallback(PieChartImpl.this);
     }
 
     @Override
@@ -39,13 +33,12 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
 
     @Override
     public void surfaceCreated(final SurfaceHolder holder) {
-        mHolder = holder;
         Canvas canvas = null;
         try {
             canvas = holder.lockCanvas(null);
-            synchronized (holder) {
+            synchronized (getHolder()) {
                 if (canvas != null) {
-                    canvas.drawColor(Color.WHITE);
+                    canvas.drawBitmap(mBitmap, null, mRectF, null);
                 }
             }
         } finally {
@@ -72,6 +65,7 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
         int smallest = Math.min(w, h);
+        mRectF = new RectF(0, 0, w, h);
         if (mViewController != null) {
             mViewController.onSize(smallest, smallest);
         }
@@ -94,13 +88,39 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
             mResourceObserver.dispose();
         }
 
-        mResourceObserver = new ResourceObserver<Float>() {
+        mResourceObserver = createFloatResourceObserver();
+
+        if (mConnectableObservable != null) {
+            mConnectableObservable.connect();
+            mConnectableObservable.subscribe(mResourceObserver);
+        }
+    }
+
+    @Override
+    public void slide(float sweepAngle, int progress) {
+        Canvas canvas = null;
+        try {
+            canvas = getHolder().lockCanvas(null);
+            if (canvas != null) {
+                if (mViewController != null) {
+                    mViewController.slide(canvas, sweepAngle, progress);
+                }
+            }
+        } finally {
+            if (canvas != null) {
+                getHolder().unlockCanvasAndPost(canvas);
+            }
+        }
+    }
+
+    private ResourceObserver<Float> createFloatResourceObserver() {
+        return new ResourceObserver<Float>() {
             @Override
             public void onNext(Float aFloat) {
                 Canvas canvas = null;
                 try {
-                    canvas = mHolder.lockCanvas(null);
-                    synchronized (mHolder) {
+                    canvas = getHolder().lockCanvas(null);
+                    synchronized (getHolder()) {
                         if (canvas != null) {
                             canvas.drawColor(Color.WHITE);
                             if (mViewController != null) {
@@ -110,7 +130,7 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
                     }
                 } finally {
                     if (canvas != null) {
-                        mHolder.unlockCanvasAndPost(canvas);
+                        getHolder().unlockCanvasAndPost(canvas);
                     }
                 }
 
@@ -126,11 +146,6 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
                 // empty
             }
         };
-
-        if (mConnectableObservable != null) {
-            mConnectableObservable.connect();
-            mConnectableObservable.subscribe(mResourceObserver);
-        }
     }
 
     private void reset() {
