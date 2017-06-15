@@ -61,8 +61,8 @@ public class SurfaceActivity extends AppCompatActivity implements SeekBar.OnSeek
     }
 
     private void animate() {
-        mSeekBar.setProgress(0);
         mPieChart.startAnimation();
+        mSeekBar.setProgress(0);
     }
 
     @Override

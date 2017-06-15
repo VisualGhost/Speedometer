@@ -37,7 +37,7 @@ public class PieChartImpl extends SurfaceView implements PieChart, SurfaceHolder
         try {
             canvas = holder.lockCanvas(null);
             synchronized (getHolder()) {
-                if (canvas != null) {
+                if (canvas != null && mBitmap != null) {
                     canvas.drawBitmap(mBitmap, null, mRectF, null);
                 }
             }
